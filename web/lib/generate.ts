@@ -19,7 +19,7 @@ export async function generateMarkdown(params: {
     throw new Error("OPENAI_API_KEY is not configured");
   }
 
-  const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+  const model = process.env.OPENAI_MODEL || "gpt-5.5";
   const endpoint = process.env.OPENAI_RESPONSES_URL || "https://api.openai.com/v1/responses";
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 45_000);
   const maxOutputTokens = Number(process.env.OPENAI_MAX_OUTPUT_TOKENS || 4_000);

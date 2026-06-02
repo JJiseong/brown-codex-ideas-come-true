@@ -80,7 +80,7 @@ OPENAI_API_KEY=...
 Optional:
 
 ```bash
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=gpt-5.5
 ```
 
 ### Data policy
@@ -264,7 +264,7 @@ export async function generateMarkdown(params: {
     throw new Error("OPENAI_API_KEY is not configured");
   }
 
-  const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+  const model = process.env.OPENAI_MODEL || "gpt-5.5";
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -487,7 +487,7 @@ vercel --prod
 
 ```bash
 OPENAI_API_KEY=...
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=gpt-5.5
 ```
 
 **Verification:**
