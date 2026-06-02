@@ -113,6 +113,14 @@ cat examples/sample-idea.md | ./bin/codex-sharpen
 ./bin/codex-productify outputs/<생성된-명세서>.md
 ```
 
+## Web 서비스 로드맵
+
+비개발자도 브라우저에서 사용할 수 있도록 만드는 Web 서비스 MVP 계획을 추가했습니다.
+
+- `docs/plans/2026-06-02-web-service-mvp.md`
+
+권장 방향은 CLI를 서버에서 직접 실행하는 방식이 아니라, 기존 prompt/workflow를 재사용하는 stateless Next.js 웹앱입니다.
+
 ## Notion/Slack/Google 연동
 
 MVP 포팅 버전은 외부 서비스 직접 저장을 제거하고 로컬 Markdown 저장만 지원합니다.
