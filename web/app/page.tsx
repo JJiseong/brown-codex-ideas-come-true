@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { FollowUpPanel } from "@/components/FollowUpPanel";
+import { FollowUpPanel, type FollowUpQuestion } from "@/components/FollowUpPanel";
 import { LoadingButton } from "@/components/LoadingButton";
 import { ModeSelector } from "@/components/ModeSelector";
 import { PromptInput } from "@/components/PromptInput";
@@ -24,7 +24,7 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("sharpen");
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
-  const [followUpAnswer, setFollowUpAnswer] = useState("");
+  const [followUpAnswers, setFollowUpAnswers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [followUpLoading, setFollowUpLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,6 +32,8 @@ export default function Home() {
   const actionText = useMemo(() => {
     return mode === "sharpen" ? "명세서 생성" : "제품화 로드맵 생성";
   }, [mode]);
+
+  const followUpQuestions = useMemo(() => extractQuestions(result), [result]);
 
   async function generate({ input: requestInput, mode: requestMode }: GenerateRequest): Promise<string> {
     const response = await fetch(`/api/${requestMode}`, {
@@ -57,7 +59,7 @@ export default function Home() {
     setLoading(true);
     setError("");
     setResult("");
-    setFollowUpAnswer("");
+    setFollowUpAnswers({});
 
     try {
       setResult(await generate({ input: trimmed, mode }));
@@ -69,14 +71,21 @@ export default function Home() {
   }
 
   async function submitFollowUp() {
-    const answer = followUpAnswer.trim();
-    if (answer.length < 2 || !result) {
-      setError("추가 질문에 대한 답변을 입력해주세요.");
+    const answeredPairs = followUpQuestions
+      .map((question, index) => ({
+        label: `질문 ${index + 1}`,
+        question: question.text,
+        answer: (followUpAnswers[question.id] || "").trim(),
+      }))
+      .filter((item) => item.answer.length > 1);
+
+    if (answeredPairs.length === 0 || !result) {
+      setError("추가 질문 중 하나 이상에 답변해주세요.");
       return;
     }
 
     const combinedInput = [
-      "아래는 사용자가 처음 입력한 내용, 직전 모델 응답, 그리고 사용자의 추가 답변입니다.",
+      "아래는 사용자가 처음 입력한 내용, 직전 모델 응답, 그리고 질문별 추가 답변입니다.",
       "직전 모델 응답이 질문이었다면 추가 답변을 반영해 다음 라운드를 진행하세요.",
       "정보가 충분해졌다면 질문을 반복하지 말고 최종 Markdown 결과를 작성하세요.",
       "",
@@ -86,8 +95,15 @@ export default function Home() {
       "## 직전 모델 응답",
       result,
       "",
-      "## 사용자의 추가 답변",
-      answer,
+      "## 사용자의 질문별 추가 답변",
+      ...answeredPairs.flatMap((item) => [
+        `### ${item.label}`,
+        item.question,
+        "",
+        "답변:",
+        item.answer,
+        "",
+      ]),
     ].join("\n");
 
     setFollowUpLoading(true);
@@ -97,7 +113,7 @@ export default function Home() {
       const nextResult = await generate({ input: combinedInput, mode });
       setInput(combinedInput);
       setResult(nextResult);
-      setFollowUpAnswer("");
+      setFollowUpAnswers({});
     } catch (err) {
       setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
@@ -105,11 +121,15 @@ export default function Home() {
     }
   }
 
+  function updateFollowUpAnswer(questionId: string, value: string) {
+    setFollowUpAnswers((current) => ({ ...current, [questionId]: value }));
+  }
+
   function useResultInProductify() {
     setMode("productify");
     setInput(result);
     setResult("");
-    setFollowUpAnswer("");
+    setFollowUpAnswers({});
     setError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -117,7 +137,7 @@ export default function Home() {
   function changeMode(nextMode: Mode) {
     setMode(nextMode);
     setResult("");
-    setFollowUpAnswer("");
+    setFollowUpAnswers({});
     setError("");
   }
 
@@ -159,16 +179,44 @@ export default function Home() {
       {result ? (
         <>
           <ResultPanel markdown={result} mode={mode} onUseInProductify={useResultInProductify} />
-          <FollowUpPanel
-            value={followUpAnswer}
-            loading={followUpLoading}
-            onChange={setFollowUpAnswer}
-            onSubmit={submitFollowUp}
-          />
+          {followUpQuestions.length > 0 ? (
+            <FollowUpPanel
+              questions={followUpQuestions}
+              answers={followUpAnswers}
+              loading={followUpLoading}
+              onAnswerChange={updateFollowUpAnswer}
+              onSubmit={submitFollowUp}
+            />
+          ) : null}
         </>
       ) : null}
 
       <p className="footer">MVP: 로그인/DB/히스토리 없이 동작합니다. 운영 전 사내 데이터 정책을 확인하세요.</p>
     </main>
   );
+}
+
+function extractQuestions(markdown: string): FollowUpQuestion[] {
+  if (!markdown.trim()) return [];
+
+  const lines = markdown
+    .split("\n")
+    .map((line) => line.replace(/^[-*#>\s]+/, "").trim())
+    .filter(Boolean);
+
+  const questionLines = lines.filter((line) => {
+    const normalized = line.replace(/^질문\s*\d+\s*[:.)-]?\s*/i, "").trim();
+    return (
+      /^질문\s*\d+/i.test(line) ||
+      /^\d+\s*[.)]\s+/.test(line) ||
+      normalized.endsWith("?") ||
+      normalized.endsWith("？") ||
+      normalized.includes("인가요") ||
+      normalized.includes("무엇인가요") ||
+      normalized.includes("알려주세요")
+    );
+  });
+
+  const unique = Array.from(new Set(questionLines)).slice(0, 5);
+  return unique.map((text, index) => ({ id: `q-${index}`, text }));
 }

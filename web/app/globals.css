@@ -279,6 +279,36 @@ textarea:focus {
   margin-bottom: 8px;
 }
 
+.question-list {
+  display: grid;
+  gap: 14px;
+}
+
+.question-item {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.question-title {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.question-text {
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.question-answer {
+  min-height: 96px;
+}
+
 .follow-up-textarea {
   min-height: 140px;
 }

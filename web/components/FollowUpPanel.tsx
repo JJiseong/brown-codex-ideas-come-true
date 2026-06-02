@@ -1,36 +1,55 @@
+export type FollowUpQuestion = {
+  id: string;
+  text: string;
+};
+
 export function FollowUpPanel({
-  value,
+  questions,
+  answers,
   loading,
-  onChange,
+  onAnswerChange,
   onSubmit,
 }: {
-  value: string;
+  questions: FollowUpQuestion[];
+  answers: Record<string, string>;
   loading: boolean;
-  onChange: (value: string) => void;
+  onAnswerChange: (questionId: string, value: string) => void;
   onSubmit: () => void;
 }) {
+  const hasAnyAnswer = Object.values(answers).some((answer) => answer.trim().length > 1);
+
   return (
     <section className="follow-up-card" aria-label="추가 질문 답변">
       <div>
         <p className="eyebrow follow-up-eyebrow">Follow-up</p>
-        <h2>추가 질문에 답변하기</h2>
+        <h2>질문별로 답변하기</h2>
         <p>
-          결과가 질문으로 끝났다면 여기에 답변을 적고 이어서 생성하세요. 기존 입력과 질문 맥락을 함께
-          보내서 다음 라운드를 진행합니다.
+          모델이 되물은 항목을 질문별 입력칸으로 나눴습니다. 모르는 항목은 비워두고 아는 항목만 답해도
+          됩니다.
         </p>
       </div>
-      <textarea
-        className="follow-up-textarea"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="예: 사용자는 팀장과 PM이고, Slack에서 공유할 수 있으면 좋겠습니다. 성공 기준은 회의 후 5분 안에 담당자/마감일이 정리되는 것입니다."
-        maxLength={10_000}
-      />
+
+      <div className="question-list">
+        {questions.map((question, index) => (
+          <label className="question-item" key={question.id}>
+            <span className="question-title">질문 {index + 1}</span>
+            <span className="question-text">{question.text}</span>
+            <textarea
+              className="question-answer"
+              value={answers[question.id] || ""}
+              onChange={(event) => onAnswerChange(question.id, event.target.value)}
+              placeholder="여기에 답변을 입력하세요. 모르면 비워둬도 됩니다."
+              maxLength={5_000}
+            />
+          </label>
+        ))}
+      </div>
+
       <div className="actions">
-        <button className="primary" type="button" disabled={loading || value.trim().length < 2} onClick={onSubmit}>
+        <button className="primary" type="button" disabled={loading || !hasAnyAnswer} onClick={onSubmit}>
           {loading ? "이어 생성 중..." : "답변 반영해서 이어 생성"}
         </button>
-        <span className="helper">답변은 현재 결과와 합쳐져 같은 모드로 다시 전송됩니다.</span>
+        <span className="helper">입력한 답변은 질문과 짝지어 같은 모드로 다시 전송됩니다.</span>
       </div>
     </section>
   );

@@ -119,7 +119,7 @@ cat examples/sample-idea.md | ./bin/codex-sharpen
 
 - 구현: `web/`
 - 계획 문서: `docs/plans/2026-06-02-web-service-mvp.md`
-- 추가 질문이 나오면 결과 아래의 Follow-up 입력창에서 답변 후 같은 모드로 이어서 생성할 수 있습니다.
+- 추가 질문이 나오면 결과 아래의 Follow-up 영역에서 질문별 입력칸에 답변 후 같은 모드로 이어서 생성할 수 있습니다.
 
 권장 방향은 CLI를 서버에서 직접 실행하는 방식이 아니라, 기존 prompt/workflow를 재사용하는 stateless 웹앱입니다.
 
