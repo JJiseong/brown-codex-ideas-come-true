@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MODE="exec"
+OUT_DIR="outputs"
+
+usage() {
+  cat <<'EOF'
+사용법:
+  codex-sharpen [--interactive] [--out outputs] "아이디어 텍스트"
+  codex-sharpen [--interactive] [--out outputs] ./idea.md
+  cat idea.md | codex-sharpen
+
+옵션:
+  --interactive   codex exec 대신 Codex TUI를 열어 질문/답변형으로 진행
+  --out DIR       산출물 디렉토리 힌트. 기본값: outputs
+  -h, --help      도움말
+EOF
+}
+
+ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --interactive) MODE="interactive"; shift ;;
+    --out) OUT_DIR="${2:-outputs}"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) ARGS+=("$1"); shift ;;
+  esac
+done
+
+if ! command -v codex >/dev/null 2>&1; then
+  echo "오류: codex CLI를 찾을 수 없습니다. npm install -g @openai/codex 후 로그인하세요." >&2
+  exit 1
+fi
+
+mkdir -p "$ROOT/$OUT_DIR"
+
+INPUT=""
+if [[ ${#ARGS[@]} -gt 0 ]]; then
+  TARGET="${ARGS[*]}"
+  if [[ -f "$TARGET" ]]; then
+    INPUT="$(cat "$TARGET")"
+  else
+    INPUT="$TARGET"
+  fi
+elif [[ ! -t 0 ]]; then
+  INPUT="$(cat)"
+else
+  usage
+  exit 1
+fi
+
+PROMPT="$(cat "$ROOT/prompts/sharpen.md")
+
+## 실행 컨텍스트
+
+- 산출물 디렉토리: $OUT_DIR
+- 현재 회사 제약: Codex CLI 사용 가능. Claude Code/Claude 플러그인 사용 불가.
+- 반드시 필요한 경우에만 질문하고, 충분하면 Markdown 파일을 생성하세요.
+
+## 사용자 입력
+
+$INPUT
+"
+
+if [[ "$MODE" == "interactive" ]]; then
+  codex --full-auto -C "$ROOT" "$PROMPT"
+else
+  codex exec --full-auto -C "$ROOT" "$PROMPT"
+fi
