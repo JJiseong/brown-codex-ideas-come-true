@@ -26,7 +26,7 @@ Claude Code 플러그인 `brown-claude-marketplace / ideas-come-true`를 Codex C
 ## 요구사항
 
 - Codex CLI
-- Node/npm 환경
+- Node/npm 환경 (Node.js 20.9 이상 권장)
 - Codex 로그인 또는 OpenAI API 키
 - git 저장소 환경
 
@@ -113,13 +113,59 @@ cat examples/sample-idea.md | ./bin/codex-sharpen
 ./bin/codex-productify outputs/<생성된-명세서>.md
 ```
 
-## Web 서비스 로드맵
+## Web 서비스 MVP
 
-비개발자도 브라우저에서 사용할 수 있도록 만드는 Web 서비스 MVP 계획을 추가했습니다.
+비개발자도 브라우저에서 사용할 수 있도록 Next.js 기반 Web MVP를 추가했습니다.
 
-- `docs/plans/2026-06-02-web-service-mvp.md`
+- 구현: `web/`
+- 계획 문서: `docs/plans/2026-06-02-web-service-mvp.md`
 
-권장 방향은 CLI를 서버에서 직접 실행하는 방식이 아니라, 기존 prompt/workflow를 재사용하는 stateless Next.js 웹앱입니다.
+권장 방향은 CLI를 서버에서 직접 실행하는 방식이 아니라, 기존 prompt/workflow를 재사용하는 stateless 웹앱입니다.
+
+로컬 실행:
+
+```bash
+cd web
+cp .env.example .env.local
+# .env.local에 OPENAI_API_KEY 설정
+npm install
+npm run dev
+```
+
+브라우저에서 열기:
+
+```text
+http://localhost:3000
+```
+
+빌드 검증:
+
+```bash
+cd web
+npm run build
+```
+
+Vercel 배포:
+
+1. Vercel에서 이 GitHub repo를 연결합니다.
+2. Root Directory를 `web`으로 설정합니다.
+3. Environment Variables에 아래를 추가합니다.
+
+```bash
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4.1-mini
+RATE_LIMIT_MAX=20
+OPENAI_TIMEOUT_MS=45000
+OPENAI_MAX_OUTPUT_TOKENS=4000
+```
+
+4. Deploy를 실행합니다.
+
+주의:
+
+- MVP는 로그인/DB/히스토리 저장 없이 동작합니다.
+- 입력 내용은 모델 API로 전송됩니다.
+- 개인정보, 고객 데이터, 결제/의료 정보, 인증 토큰, 비밀번호를 입력하지 않도록 안내해야 합니다.
 
 ## Notion/Slack/Google 연동
 

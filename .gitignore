@@ -1,5 +1,10 @@
 outputs/*.md
 .codex/
 node_modules/
+.next/
+out/
+*.tsbuildinfo
 .env
+.env.local
+.env.*.local
 .DS_Store
