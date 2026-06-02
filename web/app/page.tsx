@@ -146,7 +146,7 @@ export default function Home() {
       <section className="hero">
         <div className="hero-card">
           <p className="eyebrow">Ideas Come True · Web MVP</p>
-          <h1>아이디어를 명세서와 로드맵으로</h1>
+          <h2>아이디어를 명세서와 로드맵으로</h2>
           <p>
             개발을 몰라도 아이디어를 다듬고 제품화 방향을 잡을 수 있습니다.            
           </p>
