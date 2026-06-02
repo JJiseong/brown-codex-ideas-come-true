@@ -148,8 +148,7 @@ export default function Home() {
           <p className="eyebrow">Ideas Come True · Web MVP</p>
           <h1>아이디어를 명세서와 로드맵으로</h1>
           <p>
-            터미널을 모르는 동료도 브라우저에서 아이디어를 다듬고 제품화 방향을 잡을 수 있습니다.
-            Claude 없이 Codex/OpenAI-compatible 환경을 전제로 동작합니다.
+            개발을 몰라도 아이디어를 다듬고 제품화 방향을 잡을 수 있습니다.            
           </p>
         </div>
         <aside className="notice" aria-label="데이터 입력 주의사항">
@@ -157,8 +156,7 @@ export default function Home() {
           <ul>
             <li>개인정보, 고객 데이터, 결제/의료 정보는 입력하지 마세요.</li>
             <li>인증 토큰, 비밀번호, API 키를 붙여넣지 마세요.</li>
-            <li>입력 내용은 결과 생성을 위해 회사가 설정한 모델 API로 전송됩니다.</li>
-            <li>이 MVP는 입력/출력을 데이터베이스에 저장하지 않습니다.</li>
+            <li>이 서비스는 입력/출력을 데이터베이스에 저장하지 않습니다.</li>
           </ul>
         </aside>
       </section>
