@@ -37,6 +37,34 @@ npm install -g @openai/codex
 codex login
 ```
 
+## 설치
+
+권장 설치:
+
+```bash
+git clone https://github.com/JJiseong/brown-codex-ideas-come-true.git
+cd brown-codex-ideas-come-true
+./install.sh
+```
+
+설치 후 어디서든 실행할 수 있습니다.
+
+```bash
+codex-sharpen "슬랙에서 매일 팀 업무 상황을 자동 정리해주는 도구"
+codex-productify outputs/<생성된-명세서>.md
+```
+
+옵션:
+
+```bash
+./install.sh --force          # 기존 설치 덮어쓰기
+./install.sh --add-path       # ~/.local/bin을 shell rc에 자동 추가
+./install.sh --install-codex  # codex CLI가 없으면 npm으로 설치
+./install.sh --uninstall      # 설치 제거
+```
+
+수동 실행도 가능합니다.
+
 ## 사용법
 
 현재 디렉토리에서 실행:
